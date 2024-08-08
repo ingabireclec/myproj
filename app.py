@@ -18,11 +18,9 @@ app = Flask(__name__)
 and then save the feature vectors in the database'''
 @app.route('/fetch_and_process_products', methods=['GET'])
 def fetch_and_process():
-    # result = fetch_and_process_products()
-    # return jsonify(result)
-    limit = request.args.get('limit', 10, type=int)
-    result = fetch_and_process_products(limit)
+    result = fetch_and_process_products()
     return jsonify(result)
+
     
 
  #a route to add new product features to the database   
