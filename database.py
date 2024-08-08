@@ -16,14 +16,14 @@ feature_vec_list = []
 
 '''  the function to fetch and process products from the API endpoint.'''
 
-def fetch_and_process_products():
+def fetch_and_process_products(limit=10):
     base_url = "https://dev.izitini.com/"
     api_url = urljoin(base_url, "api/products/")
     view_url = "https://dev.izitini.com/storage/"
     try:
         response = requests.get(api_url, verify=False)  
         response.raise_for_status()  
-        products = response.json()
+        products = response.json()[:limit]
         
         processed_count = 0
         failed_count = 0
