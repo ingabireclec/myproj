@@ -56,12 +56,15 @@ def search():
     temp_path = save_file(file, 'temp_search')
     
     query_features = process_product_images(temp_path)
+    if query_features is None:
+        return jsonify({"error": "Failed to process image"}), 400
+    
     if isinstance(query_features, list):
-        query_features = np.array(query_features)
+        query_features = np.mean(query_features, axis=0)  # Average if multiple features
     
     top_results = search_feature_vector(query_features, threshold=0.5)
+    
     return jsonify({"results": top_results})
-
 # Function to save the uploaded file
 def save_file(file, filename):
     upload_folder = os.path.join(os.getcwd(), 'uploads')
