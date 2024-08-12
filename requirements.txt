@@ -1,9 +1,7 @@
 numpy
 Flask
-keras
 pillow
 requests
-tensorflow
 torch
 torchvision
 urllib3

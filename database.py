@@ -7,6 +7,7 @@ import numpy as np
 from torch import cosine_similarity
 import torch
 import requests
+import torch.nn.functional as F
 from image_processing import process_product_images
 import urllib3
 
@@ -78,7 +79,7 @@ def get_all_feature_vectors():
     Fetch all feature vectors from the API endpoint.
     
     Returns:
-    list: A list of tuples containing (product_id, features) for each product.
+    string: The file path where the feature vectors are saved.
     """
     api_endpoint = 'https://izitini.com/api/products/vectors'
     print("Starting get_all_feature_vectors function")
@@ -92,23 +93,8 @@ def get_all_feature_vectors():
         data = response.json()
         # print(f"Received {len(data)} items from API")
         
-        feature_vectors = []
-        for item in data:
-            product_id = item['product_id']
-            features = item['feature_vector']
-            # Convert features from string to list if necessary
-            if isinstance(features, str):
-                features = json.loads(features)
-            
-            # Convert features to numpy array for easier processing
-            features = np.array(features)
-            
-            # print(f"Feature vector shape for product {product_id}: {features.shape}")
-            
-            feature_vectors.append((product_id, features))
-        
-        # print(f"Finished processing {len(feature_vectors)} feature vectors")
-        return feature_vectors
+
+        return data
     
     except requests.RequestException as e:
         print(f"Error fetching feature vectors: {str(e)}")
@@ -130,32 +116,37 @@ def search_feature_vector(query_features, threshold=0.5, top_k=10):
     if query_features_tensor.dim() == 1:
         query_features_tensor = query_features_tensor.unsqueeze(0)
     
-    feature_vec_list = get_all_feature_vectors()
+    data = get_all_feature_vectors()
     # print(f"Retrieved {len(feature_vec_list)} feature vectors for comparison")
-
-    for product in feature_vec_list:
-        product_id = product[0]
-        product_features = product[1]
-        
-        # Ensure product_features is a 2D tensor
-        product_features_tensor = torch.tensor(product_features, dtype=torch.float32)
-        if product_features_tensor.dim() == 1:
-            product_features_tensor = product_features_tensor.unsqueeze(0)
-        
-        # print(f"Product {product_id} features shape: {product_features_tensor.shape}")
-        
-        # Compute cosine similarity
-        similarity = F.cosine_similarity(query_features_tensor.unsqueeze(1), 
-                                         product_features_tensor.unsqueeze(0), dim=2)
-        
-        max_similarity = similarity.max().item()
-        print(f"Max similarity for product {product_id}: {max_similarity}")
-        
-        if max_similarity >= threshold:
-            results.append((product_id, max_similarity))
-        
-        if len(results) >= top_k:
-            break
+    #read the file
+    for item in data:
+            product_id = item['product_id']
+            features = item['feature_vector']
+            # Convert features from string to list if necessary
+            if isinstance(features, str):
+                features = json.loads(features)
+            
+            # Convert features to numpy array for easier processing
+            features = np.array(features)
+                # Ensure product_features is a 2D tensor
+            product_features_tensor = torch.tensor(features, dtype=torch.float32)
+            if product_features_tensor.dim() == 1:
+                product_features_tensor = product_features_tensor.unsqueeze(0)
+            
+            # print(f"Product {product_id} features shape: {product_features_tensor.shape}")
+            
+            # Compute cosine similarity
+            similarity = F.cosine_similarity(query_features_tensor.unsqueeze(1), 
+                                            product_features_tensor.unsqueeze(0), dim=2)
+            
+            max_similarity = similarity.max().item()
+            print(f"Max similarity for product {product_id}: {max_similarity}")
+            
+            if max_similarity >= threshold:
+                results.append((product_id, max_similarity))
+            
+            if len(results) >= top_k:
+                break
     
     # Sort results by similarity (highest first) and take top_k
     results.sort(key=lambda x: x[1], reverse=True)

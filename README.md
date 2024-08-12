@@ -37,21 +37,25 @@ This project implements a visual search API using Flask, allowing users to searc
    git clone https://github.com/PUNDAGROUP/izitini_ai_ml.git
    cd iziti_ai_ml
    ```
+4. Setup Virtual Environment
 
-4. Install the required packages:
+```
+python3 -m venv my_tensorflow_env
+source my_tensorflow_env/bin/activate
+```
+
+5. Install the required packages:
    ```
    pip install -r requirements.txt
    ```
 
-5. Install PyTorch:
+6. Install PyTorch:
    - Visit [PyTorch's official website](https://pytorch.org/get-started/locally/)
    - Select your preferences (OS, package manager, Python, CUDA version)
    - Run the provided command, for example:
      ```
      pip3 install torch torchvision torchaudio
      ```
-
-$ mkvirtualenv myvirtualenv --python=/usr/bin/python3.11
 
 
 ## Usage
