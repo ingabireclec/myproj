@@ -82,4 +82,4 @@ def get_all_feature_vectors():
     return jsonify({"feature_vectors": all_vectors})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)
